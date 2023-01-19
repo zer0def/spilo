@@ -113,6 +113,7 @@ for version in $DEB_PG_SUPPORTED_VERSIONS; do
         "postgresql-${version}-pgextwlist" \
         "postgresql-plpython3-${version}" \
         "postgresql-server-dev-${version}" \
+        "postgresql-${version}-citus-12.1" \
         "postgresql-${version}-pgq3" \
         "postgresql-${version}-pg-stat-kcache" \
         "${EXTRAS[@]}"
