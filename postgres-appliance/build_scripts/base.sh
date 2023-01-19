@@ -101,6 +101,10 @@ for version in $DEB_PG_SUPPORTED_VERSIONS; do
 
     fi
 
+    if [ "${TIMESCALEDB_APACHE_ONLY}" == "false" ] && [ "${TIMESCALEDB_TOOLKIT}" = "true" ]; then
+        EXTRAS+=("timescaledb-toolkit-postgresql-${version}")
+    fi
+
     # Install PostgreSQL binaries, contrib, plproxy and multiple pl's
     apt-get install --allow-downgrades -y \
         "postgresql-${version}-cron" \
@@ -108,14 +112,12 @@ for version in $DEB_PG_SUPPORTED_VERSIONS; do
         "postgresql-${version}-pgextwlist" \
         "postgresql-plpython3-${version}" \
         "postgresql-server-dev-${version}" \
+        "postgresql-${version}-citus-12.1" \
         "postgresql-${version}-pgq3" \
         "postgresql-${version}-pg-stat-kcache" \
         "${EXTRAS[@]}"
-
-    # Install 3rd party stuff
-
     # use subshell to avoid having to cd back (SC2103)
-    (
+    [ "${TIMESCALEDB_APACHE_ONLY}" != "false" ] && (
         cd timescaledb
         for v in $TIMESCALEDB; do
             git checkout "$v"
@@ -129,23 +131,7 @@ for version in $DEB_PG_SUPPORTED_VERSIONS; do
             git reset --hard
             git clean -f -d
         done
-    )
-
-    if [ "${TIMESCALEDB_APACHE_ONLY}" != "true" ] && [ "${TIMESCALEDB_TOOLKIT}" = "true" ]; then
-        __versionCodename=$(sed </etc/os-release -ne 's/^VERSION_CODENAME=//p')
-        echo "deb [signed-by=/usr/share/keyrings/timescale_E7391C94080429FF.gpg] https://packagecloud.io/timescale/timescaledb/ubuntu/ ${__versionCodename} main" | tee /etc/apt/sources.list.d/timescaledb.list
-        curl -L https://packagecloud.io/timescale/timescaledb/gpgkey | gpg --dearmor > /usr/share/keyrings/timescale_E7391C94080429FF.gpg
-
-        apt-get update
-        if [ "$(apt-cache search --names-only "^timescaledb-toolkit-postgresql-${version}$" | wc -l)" -eq 1 ]; then
-            apt-get install "timescaledb-toolkit-postgresql-$version"
-        else
-            echo "Skipping timescaledb-toolkit-postgresql-$version as it's not found in the repository"
-        fi
-
-        rm /etc/apt/sources.list.d/timescaledb.list
-        rm /usr/share/keyrings/timescale_E7391C94080429FF.gpg
-    fi
+    ) || for v in $TIMESCALEDB; do apt-get install -y "timescaledb-2-${v}-postgresql-${version}"; done
 
     EXTRA_EXTENSIONS=()
     if [ "$DEMO" != "true" ]; then
