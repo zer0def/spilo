@@ -38,17 +38,11 @@ else
     git clone -b "$PLPROFILER" https://github.com/bigsql/plprofiler.git
     curl -sL "https://github.com/zalando-pg/pg_mon/archive/$PG_MON_COMMIT.tar.gz" | tar xz
 
-    for p in python3-keyring python3-docutils ieee-data; do
-        version=$(apt-cache show $p | sed -n 's/^Version: //p' | sort -rV | head -n 1)
-        printf "Section: misc\nPriority: optional\nStandards-Version: 3.9.8\nPackage: %s\nVersion: %s\nDescription: %s" "$p" "$version" "$p" > "$p"
-        equivs-build "$p"
-    done
+    apt-get install -y python3-keyring python3-docutils ieee-data
 fi
 
 if [ "$WITH_PERL" != "true" ]; then
-    version=$(apt-cache show perl | sed -n 's/^Version: //p' | sort -rV | head -n 1)
-    printf "Priority: standard\nStandards-Version: 3.9.8\nPackage: perl\nMulti-Arch: allowed\nReplaces: perl-base, perl-modules\nVersion: %s\nDescription: perl" "$version" > perl
-    equivs-build perl
+    apt-get install -y perl
 fi
 
 curl -sL "https://github.com/zalando-pg/bg_mon/archive/$BG_MON_COMMIT.tar.gz" | tar xz
@@ -60,6 +54,7 @@ git clone https://github.com/timescale/timescaledb.git
 
 apt-get install -y \
     postgresql-common \
+    hunspell-en-us \
     libevent-2.1 \
     libevent-pthreads-2.1 \
     brotli \
@@ -89,6 +84,7 @@ for version in $DEB_PG_SUPPORTED_VERSIONS; do
                 "postgresql-${version}-pglogical-ticker"
                 "postgresql-${version}-plpgsql-check"
                 "postgresql-${version}-pg-checksums"
+                "postgresql-${version}-pgdg-pgroonga"
                 "postgresql-${version}-pgl-ddl-deploy"
                 "postgresql-${version}-pgq-node"
                 "postgresql-${version}-postgis-${POSTGIS_VERSION%.*}"
@@ -186,7 +182,7 @@ if [ "$WITH_PERL" != "true" ] || [ "$DEMO" != "true" ]; then
 fi
 
 # Remove unnecessary packages
-apt-get purge -y \
+:||apt-get purge -y \
                 libdpkg-perl \
                 libperl5.* \
                 perl-modules-5.* \
@@ -247,6 +243,7 @@ if [ "$DEMO" != "true" ]; then
                 done
             fi
         done
+        cd $v1/tsearch_data && ln -s english.stop zulip_english.stop
 
         # relink files with the same name and content across different major versions
         started=0

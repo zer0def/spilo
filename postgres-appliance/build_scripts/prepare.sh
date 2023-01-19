@@ -5,9 +5,11 @@ export DEBIAN_FRONTEND=noninteractive
 sed -i 's/65534/998/g' /etc/passwd /etc/group  # nobody
 echo -e 'APT::Install-Recommends "0";\nAPT::Install-Suggests "0";' > /etc/apt/apt.conf.d/01norecommend
 
+groupadd -r -g 999 postgres
+useradd -r -u 999 -g 999 postgres
 apt-get update
 apt-get -y upgrade
-apt-get install -y curl ca-certificates less locales jq vim-tiny gnupg1 cron runit dumb-init libcap2-bin rsync sysstat gpg
+apt-get install -y curl ca-certificates less locales jq vim-tiny gnupg cron runit dumb-init libcap2-bin rsync sysstat gpg software-properties-common
 
 ln -s chpst /usr/bin/envdir
 
@@ -44,6 +46,11 @@ curl -s -o - https://www.postgresql.org/media/keys/ACCC4CF8.asc | gpg --dearmor 
 # add TimescaleDB repository
 echo "deb [signed-by=/etc/apt/keyrings/timescale_timescaledb-archive-keyring.gpg] https://packagecloud.io/timescale/timescaledb/ubuntu/ ${DISTRIB_CODENAME} main" | tee /etc/apt/sources.list.d/timescaledb.list
 curl -fsSL https://packagecloud.io/timescale/timescaledb/gpgkey | gpg --dearmor | tee /etc/apt/keyrings/timescale_timescaledb-archive-keyring.gpg > /dev/null
+
+# Add Groonga and pgGroonga repoistories
+add-apt-repository ppa:groonga/ppa
+curl -s -o - https://packages.groonga.org/ubuntu/groonga-keyring.gpg | gpg --dearmor > /etc/apt/trusted.gpg.d/packages.groonga.org.gpg
+echo "deb https://packages.groonga.org/ubuntu/ ${DISTRIB_CODENAME} universe" > /etc/apt/sources.list.d/pgroonga.list
 
 # Clean up
 apt-get purge -y libcap2-bin
