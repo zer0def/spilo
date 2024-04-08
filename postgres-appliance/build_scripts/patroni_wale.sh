@@ -18,6 +18,7 @@ apt-cache depends patroni \
         | grep -Ev '^python3-(sphinx|etcd|consul|kazoo|kubernetes)' \
         | xargs apt-get install -y "${BUILD_PACKAGES[@]}" python3-pystache python3-requests
 
+rm -f /usr/lib/python3.*/EXTERNALLY-MANAGED
 pip3 install setuptools
 
 if [ "$DEMO" != "true" ]; then
@@ -35,7 +36,8 @@ if [ "$DEMO" != "true" ]; then
         python3-pyasn1-modules \
         python3-rsa \
         python3-s3transfer \
-        python3-swiftclient
+        python3-swiftclient \
+        python-babel-localedata
 
     find /usr/share/python-babel-localedata/locale-data -type f ! -name 'en_US*.dat' -delete
 
@@ -51,7 +53,7 @@ fi
 
 pip3 install "patroni[kubernetes$EXTRAS]==$PATRONIVERSION"
 
-for d in /usr/local/lib/python3.10 /usr/lib/python3; do
+for d in /usr/local/lib/python3.11 /usr/lib/python3; do
     cd $d/dist-packages
     find . -type d -name tests -print0 | xargs -0 rm -fr
     find . -type f -name 'test_*.py*' -delete

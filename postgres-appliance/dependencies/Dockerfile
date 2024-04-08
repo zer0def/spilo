@@ -1,4 +1,5 @@
-FROM ubuntu:22.04
+#FROM ubuntu:22.04
+FROM debian:bookworm
 
 LABEL maintainer="Alexander Kukushkin <alexander.kukushkin@zalando.de>"
 
