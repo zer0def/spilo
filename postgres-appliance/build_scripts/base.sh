@@ -13,7 +13,7 @@ set -ex
 
 apt-get update
 
-BUILD_PACKAGES=(devscripts equivs build-essential fakeroot debhelper git gcc libc6-dev make cmake libevent-dev libbrotli-dev libssl-dev libkrb5-dev)
+BUILD_PACKAGES=(devscripts equivs build-essential fakeroot debhelper git gcc libc6-dev make cmake libevent-dev libbrotli-dev libssl-dev libkrb5-dev ninja-build)
 if [ "$DEMO" = "true" ]; then
     export DEB_PG_SUPPORTED_VERSIONS="$PGVERSION"
     WITH_PERL=false
@@ -21,8 +21,10 @@ if [ "$DEMO" = "true" ]; then
     apt-get install -y "${BUILD_PACKAGES[@]}"
 else
     BUILD_PACKAGES+=(zlib1g-dev
+                    libzstd-dev
                     libprotobuf-c-dev
                     libpam0g-dev
+                    liblz4-dev
                     libcurl4-openssl-dev
                     libicu-dev
                     libc-ares-dev
@@ -52,6 +54,7 @@ curl -sL "https://github.com/zubkov-andrei/pg_profile/archive/$PG_PROFILE.tar.gz
 git clone -b "$SET_USER" https://github.com/pgaudit/set_user.git
 git clone https://github.com/timescale/timescaledb.git
 git clone -b "${CITUS}" https://github.com/citusdata/citus.git
+git clone -b "${PG_DUCKDB}" https://github.com/duckdb/pg_duckdb.git --recurse-submodules
 
 apt-get install -y \
     postgresql-common \
@@ -78,6 +81,7 @@ for version in $DEB_PG_SUPPORTED_VERSIONS; do
                 "postgresql-${version}-first-last-agg"
                 "postgresql-${version}-hll"
                 "postgresql-${version}-hypopg"
+                "postgresql-${version}-mysql-fdw"
                 "postgresql-${version}-partman"
                 "postgresql-${version}-plproxy"
                 "postgresql-${version}-pgaudit"
@@ -136,6 +140,15 @@ for version in $DEB_PG_SUPPORTED_VERSIONS; do
     (
       cd citus
       mkdir -p "build-${version}" && cd "build-${version}" && CFLAGS=-Werror ../configure PG_CONFIG=/usr/lib/postgresql/${version}/bin/pg_config --with-security-flags && make -j$(nproc) && make DESTDIR=/ install-all && make clean-full && cd ..
+      git clean -fd
+      cd ..
+    )
+    (
+      cd pg_duckdb
+      #cd third_party/duckdb && git checkout "${DUCKDB}" && cd ../..
+      make PG_CONFIG=/usr/lib/postgresql/${version}/bin/pg_config -j$(nproc)
+      make DESTDIR=/ install
+      make clean-all
       git clean -fd
       cd ..
     )
