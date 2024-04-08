@@ -9,7 +9,7 @@ groupadd -r -g 999 postgres
 useradd -r -u 999 -g 999 postgres
 apt-get update
 apt-get -y upgrade
-apt-get install -y curl ca-certificates less locales jq vim-tiny gnupg cron runit dumb-init libcap2-bin rsync sysstat gpg software-properties-common
+apt-get install -y curl ca-certificates less locales jq vim-tiny gnupg cron runit dumb-init libcap2-bin rsync sysstat gpg
 
 ln -s chpst /usr/bin/envdir
 
@@ -37,26 +37,29 @@ ln -s /run/locale-archive /usr/lib/locale/locale-archive
 ln -s /usr/lib/locale/locale-archive.22 /run/locale-archive
 
 # Add PGDG repositories
-DISTRIB_CODENAME=$(sed -n 's/DISTRIB_CODENAME=//p' /etc/lsb-release)
+#DISTRIB_CODENAME=$(sed -n 's/DISTRIB_CODENAME=//p' /etc/lsb-release)
+. /etc/os-release
+DISTRIB_CODENAME="${VERSION_CODENAME}"
 for t in deb deb-src; do
     echo "$t http://apt.postgresql.org/pub/repos/apt/ ${DISTRIB_CODENAME}-pgdg main" >> /etc/apt/sources.list.d/pgdg.list
 done
 curl -s -o - https://www.postgresql.org/media/keys/ACCC4CF8.asc | gpg --dearmor > /etc/apt/trusted.gpg.d/apt.postgresql.org.gpg
 
 # add TimescaleDB repository
-echo "deb [signed-by=/etc/apt/keyrings/timescale_timescaledb-archive-keyring.gpg] https://packagecloud.io/timescale/timescaledb/ubuntu/ ${DISTRIB_CODENAME} main" | tee /etc/apt/sources.list.d/timescaledb.list
-curl -fsSL https://packagecloud.io/timescale/timescaledb/gpgkey | gpg --dearmor | tee /etc/apt/keyrings/timescale_timescaledb-archive-keyring.gpg > /dev/null
+#echo "deb [signed-by=/etc/apt/keyrings/timescale_timescaledb-archive-keyring.gpg] https://packagecloud.io/timescale/timescaledb/ubuntu/ ${DISTRIB_CODENAME} main" | tee /etc/apt/sources.list.d/timescaledb.list
+#curl -fsSL https://packagecloud.io/timescale/timescaledb/gpgkey | gpg --dearmor | tee /etc/apt/keyrings/timescale_timescaledb-archive-keyring.gpg > /dev/null
 
 # Add Groonga and pgGroonga repoistories
-add-apt-repository ppa:groonga/ppa
-curl -s -o - https://packages.groonga.org/ubuntu/groonga-keyring.gpg | gpg --dearmor > /etc/apt/trusted.gpg.d/packages.groonga.org.gpg
-echo "deb https://packages.groonga.org/ubuntu/ ${DISTRIB_CODENAME} universe" > /etc/apt/sources.list.d/pgroonga.list
+#add-apt-repository ppa:groonga/ppa
+curl -s -o - https://packages.groonga.org/debian/groonga-keyring.gpg | gpg --dearmor > /etc/apt/trusted.gpg.d/packages.groonga.org.gpg
+#echo "deb https://packages.groonga.org/ubuntu/ ${DISTRIB_CODENAME} universe" > /etc/apt/sources.list.d/pgroonga.list
+echo "deb https://packages.groonga.org/debian/ ${DISTRIB_CODENAME} main" > /etc/apt/sources.list.d/pgroonga.list
 
 # Add Citus repositories
 #curl -sL -o- https://packagecloud.io/citusdata/community/gpgkey | gpg --dearmor > /etc/apt/trusted.gpg.d/repos.citusdata.com.gpg
 #curl -sL -o- https://repos.citusdata.com/community/gpgkey | gpg --dearmor > /etc/apt/trusted.gpg.d/repos.citusdata.com.gpg
-#echo "deb https://packagecloud.io/citusdata/community/ubuntu/ ${DISTRIB_CODENAME} main" > /etc/apt/sources.list.d/citus.list
-#echo "deb https://repos.citusdata.com/community/ubuntu/ ${DISTRIB_CODENAME} main" > /etc/apt/sources.list.d/citus.list
+#echo "deb https://packagecloud.io/citusdata/community/debian/ ${DISTRIB_CODENAME} main" > /etc/apt/sources.list.d/citus.list
+#echo "deb https://repos.citusdata.com/community/debian/ ${DISTRIB_CODENAME} main" > /etc/apt/sources.list.d/citus.list
 
 # Clean up
 apt-get purge -y libcap2-bin
