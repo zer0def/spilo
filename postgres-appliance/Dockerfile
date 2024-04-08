@@ -1,7 +1,7 @@
 #ARG BASE_IMAGE=docker.io/library/ubuntu:22.04
 #ARG BASE_IMAGE=docker.io/library/debian:trixie-slim
 ARG BASE_IMAGE=docker.io/library/debian:bookworm-slim
-ARG PGVERSION=16
+ARG PGVERSION=15
 ARG DEMO=false
 ARG COMPRESS=false
 ARG ADDITIONAL_LOCALES=
@@ -50,7 +50,7 @@ ARG PGVERSION
 ARG TIMESCALEDB_APACHE_ONLY=false
 ARG TIMESCALEDB_TOOLKIT=true
 ARG COMPRESS
-ARG PGOLDVERSIONS="15"
+ARG PGOLDVERSIONS=""
 ARG WITH_PERL=false
 
 ARG DEB_PG_SUPPORTED_VERSIONS="$PGOLDVERSIONS $PGVERSION"
@@ -125,14 +125,6 @@ RUN sh /builddeps/post_build.sh && rm -rf /builddeps/
 
 COPY scripts bootstrap major_upgrade /scripts/
 COPY launch.sh /
-
-COPY --from=docker.io/pgduckdb/pgduckdb:16-v0.3.1 /usr/share/postgresql/16/extension/ /usr/share/postgresql/16/extension/
-COPY --from=docker.io/pgduckdb/pgduckdb:16-v0.3.1 /usr/lib/postgresql/16/lib/libduckdb.so /usr/lib/postgresql/16/lib/pg_duckdb.so /usr/lib/postgresql/16/lib/
-COPY --from=docker.io/pgduckdb/pgduckdb:16-v0.3.1 /usr/lib/postgresql/16/lib/bitcode/pg_duckdb.index.bc /usr/lib/postgresql/16/lib/bitcode/
-COPY --from=docker.io/pgduckdb/pgduckdb:16-v0.3.1 /usr/lib/postgresql/16/lib/bitcode/pg_duckdb/ /usr/lib/postgresql/16/lib/bitcode/pg_duckdb/
-COPY --from=docker.io/paradedb/paradedb:v0.15.9-pg16 /usr/share/postgresql/16/extension/pg_analytics* /usr/share/postgresql/16/extension/pg_ivm* /usr/share/postgresql/16/extension/pg_parquet* /usr/share/postgresql/16/extension/pg_search* /usr/share/postgresql/16/extension/
-COPY --from=docker.io/paradedb/paradedb:v0.15.9-pg16 /usr/lib/postgresql/16/lib/pg_analytics.so /usr/lib/postgresql/16/lib/pg_ivm.so /usr/lib/postgresql/16/lib/pg_parquet.so /usr/lib/postgresql/16/lib/pg_search.so /usr/lib/postgresql/16/lib/
-RUN patchelf --replace-needed libicuuc.so.76 libicuuc.so.72 /usr/lib/postgresql/16/lib/pg_search.so; patchelf --replace-needed libicui18n.so.76 libicui18n.so.72 /usr/lib/postgresql/16/lib/pg_search.so  # requires libicu86, present in trixie
 
 COPY --from=docker.io/pgduckdb/pgduckdb:15-v0.3.1 /usr/share/postgresql/15/extension/ /usr/share/postgresql/15/extension/
 COPY --from=docker.io/pgduckdb/pgduckdb:15-v0.3.1 /usr/lib/postgresql/15/lib/libduckdb.so /usr/lib/postgresql/15/lib/pg_duckdb.so /usr/lib/postgresql/15/lib/
