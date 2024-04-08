@@ -21,8 +21,10 @@ if [ "$DEMO" = "true" ]; then
     apt-get install -y "${BUILD_PACKAGES[@]}"
 else
     BUILD_PACKAGES+=(zlib1g-dev
+                    libzstd-dev
                     libprotobuf-c-dev
                     libpam0g-dev
+                    liblz4-dev
                     libcurl4-openssl-dev
                     libicu-dev
                     libc-ares-dev
@@ -51,6 +53,7 @@ curl -sL "https://github.com/cybertec-postgresql/pg_permissions/archive/$PG_PERM
 curl -sL "https://github.com/zubkov-andrei/pg_profile/archive/$PG_PROFILE.tar.gz" | tar xz
 git clone -b "$SET_USER" https://github.com/pgaudit/set_user.git
 git clone https://github.com/timescale/timescaledb.git
+git clone -b "v${HYDRAVERSION}" https://github.com/hydradatabase/hydra.git
 
 apt-get install -y \
     postgresql-common \
@@ -76,6 +79,7 @@ for version in $DEB_PG_SUPPORTED_VERSIONS; do
                 "postgresql-${version}-first-last-agg"
                 "postgresql-${version}-hll"
                 "postgresql-${version}-hypopg"
+                "postgresql-${version}-mysql-fdw"
                 "postgresql-${version}-plproxy"
                 "postgresql-${version}-partman"
                 "postgresql-${version}-pgaudit"
@@ -132,6 +136,8 @@ for version in $DEB_PG_SUPPORTED_VERSIONS; do
             git clean -f -d
         done
     ) || for v in $TIMESCALEDB; do apt-get install -y "timescaledb-2-${v}-postgresql-${version}"; done
+
+    #pushd hydra/columnar; ./configure; make install; popd
 
     EXTRA_EXTENSIONS=()
     if [ "$DEMO" != "true" ]; then
