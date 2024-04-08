@@ -288,7 +288,7 @@ postgresql:
   data_dir: {{PGDATA}}
   parameters:
     archive_command: {{{postgresql.parameters.archive_command}}}
-    shared_buffers: {{postgresql.parameters.shared_buffers}}
+    shared_buffers: {{postgresql.parameters.shared_buffers}}  # not on columnar
     logging_collector: 'on'
     log_destination: csvlog
     log_directory: ../pg_log
@@ -316,12 +316,14 @@ postgresql:
     ssl_cert_file: {{SSL_CERTIFICATE_FILE}}
     ssl_key_file: {{SSL_PRIVATE_KEY_FILE}}
     shared_preload_libraries: 'bg_mon,pg_stat_statements,pgextwlist,pg_auth_mon,set_user'
+    #shared_preload_libraries: 'bg_mon,pg_stat_statements,pgextwlist,pg_auth_mon,set_user,columnar,pg_cron,pg_hint_plan'
     bg_mon.listen_address: '{{BGMON_LISTEN_IP}}'
     bg_mon.history_buckets: 120
     pg_stat_statements.track_utility: 'off'
-    extwlist.extensions: 'btree_gin,btree_gist,citext,extra_window_functions,first_last_agg,hll,\
-hstore,hypopg,intarray,ltree,pgcrypto,pgq,pgq_node,pg_trgm,postgres_fdw,tablefunc,uuid-ossp'
+    extwlist.extensions: 'btree_gin,btree_gist,citext,extra_window_functions,first_last_agg,hll,hstore,hypopg,intarray,ltree,pgcrypto,pgq,pgq_node,pg_trgm,postgres_fdw,tablefunc,uuid-ossp'
+    #extwlist.extensions: 'btree_gin,btree_gist,citext,extra_window_functions,first_last_agg,hll,hstore,hypopg,intarray,ltree,pgcrypto,pgq,pgq_node,pg_trgm,postgres_fdw,tablefunc,uuid-ossp,pg_ivm,mysql_fdw,multicorn,parquet_s3_fdw,vector,pg_hint_plan'
     extwlist.custom_path: /scripts
+    #cron.use_background_workers: 'on'
   pg_hba:
     - local   all             all                                   trust
     {{#PAM_OAUTH2}}
@@ -689,7 +691,7 @@ def get_placeholders(provider):
         os_memory_mb = sys.maxsize
     os_memory_mb = min(os_memory_mb, os.sysconf('SC_PAGE_SIZE') * os.sysconf('SC_PHYS_PAGES') / 1048576)
 
-    # Depending on environment we take 1/4 or 1/5 of the memory, expressed in full MB's
+    # Depending on environment we take 1/4 or 1/5 of the memory, expressed in full MB's  # not on columnar
     sb_ratio = 5 if USE_KUBERNETES else 4
     placeholders['postgresql']['parameters']['shared_buffers'] = '{}MB'.format(int(os_memory_mb/sb_ratio))
     # # 1 connection per 30 MB, at least 100, at most 1000
