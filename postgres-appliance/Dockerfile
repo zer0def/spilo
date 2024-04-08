@@ -1,4 +1,5 @@
-ARG BASE_IMAGE=ubuntu:22.04
+#ARG BASE_IMAGE=ubuntu:22.04
+ARG BASE_IMAGE=debian:bookworm
 ARG PGVERSION=17
 ARG TIMESCALEDB="2.15.3 2.17.2"
 ARG DEMO=false
@@ -6,7 +7,8 @@ ARG COMPRESS=false
 ARG ADDITIONAL_LOCALES=
 
 
-FROM ubuntu:18.04 as ubuntu-18
+#FROM ubuntu:18.04 as ubuntu-18
+FROM debian:bookworm as ubuntu-18
 
 ARG ADDITIONAL_LOCALES
 
