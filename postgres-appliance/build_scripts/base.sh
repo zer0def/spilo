@@ -9,7 +9,7 @@ MAKEFLAGS="-j $(grep -c ^processor /proc/cpuinfo)"
 export MAKEFLAGS
 
 set -ex
-sed -i 's/^#\s*\(deb.*universe\)$/\1/g' /etc/apt/sources.list
+#sed -i 's/^#\s*\(deb.*universe\)$/\1/g' /etc/apt/sources.list
 
 apt-get update
 
@@ -60,7 +60,8 @@ apt-get install -y \
     libevent-pthreads-2.1 \
     brotli \
     libbrotli1 \
-    python3.10 \
+    procps \
+    python3.13 \
     python3-psycopg2
 
 # forbid creation of a main cluster when package is installed
@@ -85,7 +86,7 @@ for version in $DEB_PG_SUPPORTED_VERSIONS; do
                 "postgresql-${version}-pglogical-ticker"
                 "postgresql-${version}-plpgsql-check"
                 "postgresql-${version}-pg-checksums"
-                "postgresql-${version}-pgdg-pgroonga"
+                #"postgresql-${version}-pgdg-pgroonga"
                 "postgresql-${version}-pgl-ddl-deploy"
                 "postgresql-${version}-pgq-node"
                 "postgresql-${version}-postgis-${POSTGIS_VERSION%.*}"
@@ -167,9 +168,10 @@ apt-get install -y skytools3-ticker pgbouncer
 
 sed -i "s/ main.*$/ main/g" /etc/apt/sources.list.d/pgdg.list
 apt-get update
-apt-get install -y postgresql postgresql-server-dev-all postgresql-all libpq-dev
+#apt-get install -y postgresql postgresql-server-dev-all postgresql-all libpq-dev
+apt-get install -y libpq-dev
 for version in $DEB_PG_SUPPORTED_VERSIONS; do
-    apt-get install -y "postgresql-server-dev-${version}"
+    apt-get install -y "postgresql-${version}" "postgresql-server-dev-${version}"
 done
 
 if [ "$DEMO" != "true" ]; then

@@ -1,4 +1,5 @@
-FROM ubuntu:22.04
+#FROM docker.io/library/ubuntu:22.04
+FROM docker.io/library/debian:trixie-slim
 
 LABEL maintainer="Alexander Kukushkin <alexander.kukushkin@zalando.de>"
 
