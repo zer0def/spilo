@@ -24,7 +24,7 @@ apt-get update
 apt-get install -y curl ca-certificates
 
 apt-get install -y software-properties-common gpg-agent
-add-apt-repository ppa:longsleep/golang-backports
+#add-apt-repository ppa:longsleep/golang-backports
 apt-get update
 apt-get install -y golang-go liblzo2-dev brotli libsodium-dev git make cmake gcc libc-dev
 go version
