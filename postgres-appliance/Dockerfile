@@ -1,11 +1,15 @@
-ARG BASE_IMAGE=ubuntu:22.04
+#ARG BASE_IMAGE=docker.io/library/ubuntu:22.04
+#ARG BASE_IMAGE=docker.io/library/debian:trixie-slim
+ARG BASE_IMAGE=docker.io/library/debian:bookworm-slim
 ARG PGVERSION=17
 ARG DEMO=false
 ARG COMPRESS=false
 ARG ADDITIONAL_LOCALES=
 
 
-FROM ubuntu:18.04 as ubuntu-18
+#FROM docker.io/library/ubuntu:18.04 as ubuntu-18
+#FROM docker.io/library/debian:trixie-slim as ubuntu-18
+FROM docker.io/library/debian:bookworm-slim as ubuntu-18
 
 ARG ADDITIONAL_LOCALES
 

@@ -36,7 +36,9 @@ ln -s /run/locale-archive /usr/lib/locale/locale-archive
 ln -s /usr/lib/locale/locale-archive.22 /run/locale-archive
 
 # Add PGDG repositories
-DISTRIB_CODENAME=$(sed -n 's/DISTRIB_CODENAME=//p' /etc/lsb-release)
+#DISTRIB_CODENAME=$(sed -n 's/DISTRIB_CODENAME=//p' /etc/lsb-release)
+. /etc/os-release
+DISTRIB_CODENAME="${VERSION_CODENAME}"
 for t in deb deb-src; do
     echo "$t http://apt.postgresql.org/pub/repos/apt/ ${DISTRIB_CODENAME}-pgdg main" >> /etc/apt/sources.list.d/pgdg.list
 done
@@ -47,17 +49,18 @@ echo "deb [signed-by=/etc/apt/keyrings/timescale_timescaledb-archive-keyring.gpg
 curl -fsSL https://packagecloud.io/timescale/timescaledb/gpgkey | gpg --dearmor | tee /etc/apt/keyrings/timescale_timescaledb-archive-keyring.gpg > /dev/null
 
 # Add Groonga and pgGroonga repoistories
-add-apt-repository ppa:groonga/ppa
-curl -s -o - https://packages.groonga.org/ubuntu/groonga-keyring.gpg | gpg --dearmor > /etc/apt/trusted.gpg.d/packages.groonga.org.gpg
-echo "deb https://packages.groonga.org/ubuntu/ ${DISTRIB_CODENAME} universe" > /etc/apt/sources.list.d/pgroonga.list
+#add-apt-repository ppa:groonga/ppa
+curl -s -o - https://packages.groonga.org/debian/groonga-keyring.gpg | gpg --dearmor > /etc/apt/trusted.gpg.d/packages.groonga.org.gpg
+#echo "deb https://packages.groonga.org/ubuntu/ ${DISTRIB_CODENAME} universe" > /etc/apt/sources.list.d/pgroonga.list
+echo "deb https://packages.groonga.org/debian/ ${DISTRIB_CODENAME} main" > /etc/apt/sources.list.d/pgroonga.list
 
 # Add Timescale repositories
 curl -sL -o- https://packagecloud.io/timescale/timescaledb/gpgkey | gpg --dearmor > /etc/apt/trusted.gpg.d/timescaledb.gpg
-echo "deb http://packagecloud.io/timescale/timescaledb/ubuntu/ ${DISTRIB_CODENAME} main" > /etc/apt/sources.list.d/timescaledb.list
+echo "deb http://packagecloud.io/timescale/timescaledb/debian/ ${DISTRIB_CODENAME} main" > /etc/apt/sources.list.d/timescaledb.list
 
 # Add Citus repositories
 curl -sL -o- https://repos.citusdata.com/community/gpgkey | gpg --dearmor > /etc/apt/trusted.gpg.d/repos.citusdata.com.gpg
-echo "deb https://repos.citusdata.com/community/ubuntu/ ${DISTRIB_CODENAME} main" > /etc/apt/sources.list.d/citus.list
+echo "deb https://repos.citusdata.com/community/debian/ ${DISTRIB_CODENAME} main" > /etc/apt/sources.list.d/citus.list
 
 # Clean up
 apt-get purge -y libcap2-bin
