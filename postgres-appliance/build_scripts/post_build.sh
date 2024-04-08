@@ -11,6 +11,7 @@ mkdir -p /var/spool
 ln -s "$RW_DIR/cron" /var/spool/cron
 ln -s "$RW_DIR/tmp" /var/tmp
 
+rm -rf /etc/service/default-syslog
 for d in /etc/service/*; do
     chmod 755 "$d"/*
     ln -s /run/supervise/"$(basename "$d")" "$d/supervise"
