@@ -1,6 +1,6 @@
 #ARG BASE_IMAGE=ubuntu:22.04
 ARG BASE_IMAGE=debian:bookworm-slim
-ARG PGVERSION=16
+ARG PGVERSION=15
 ARG TIMESCALEDB="2.15.3 2.18.0"
 ARG DEMO=false
 ARG COMPRESS=false
@@ -50,7 +50,7 @@ ARG TIMESCALEDB
 ARG TIMESCALEDB_APACHE_ONLY=false
 ARG TIMESCALEDB_TOOLKIT=true
 ARG COMPRESS
-ARG PGOLDVERSIONS="15"
+ARG PGOLDVERSIONS=""
 ARG WITH_PERL=false
 
 ARG DEB_PG_SUPPORTED_VERSIONS="$PGOLDVERSIONS $PGVERSION"
@@ -125,11 +125,6 @@ RUN sh /builddeps/post_build.sh && rm -rf /builddeps/
 
 COPY scripts bootstrap major_upgrade /scripts/
 COPY launch.sh /
-
-COPY --from=docker.io/pgduckdb/pgduckdb:16-v0.3.1 /usr/share/postgresql/16/extension/ /usr/share/postgresql/16/extension/
-COPY --from=docker.io/pgduckdb/pgduckdb:16-v0.3.1 /usr/lib/postgresql/16/lib/libduckdb.so /usr/lib/postgresql/16/lib/pg_duckdb.so /usr/lib/postgresql/16/lib/
-COPY --from=docker.io/pgduckdb/pgduckdb:16-v0.3.1 /usr/lib/postgresql/16/lib/bitcode/pg_duckdb.index.bc /usr/lib/postgresql/16/lib/bitcode/
-COPY --from=docker.io/pgduckdb/pgduckdb:16-v0.3.1 /usr/lib/postgresql/16/lib/bitcode/pg_duckdb/ /usr/lib/postgresql/16/lib/bitcode/pg_duckdb/
 
 COPY --from=docker.io/pgduckdb/pgduckdb:15-v0.3.1 /usr/share/postgresql/15/extension/ /usr/share/postgresql/15/extension/
 COPY --from=docker.io/pgduckdb/pgduckdb:15-v0.3.1 /usr/lib/postgresql/15/lib/libduckdb.so /usr/lib/postgresql/15/lib/pg_duckdb.so /usr/lib/postgresql/15/lib/
