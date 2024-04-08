@@ -21,8 +21,10 @@ if [ "$DEMO" = "true" ]; then
     apt-get install -y "${BUILD_PACKAGES[@]}"
 else
     BUILD_PACKAGES+=(zlib1g-dev
+                    libzstd-dev
                     libprotobuf-c-dev
                     libpam0g-dev
+                    liblz4-dev
                     libcurl4-openssl-dev
                     libicu-dev
                     libc-ares-dev
@@ -76,6 +78,7 @@ for version in $DEB_PG_SUPPORTED_VERSIONS; do
                 "postgresql-${version}-first-last-agg"
                 "postgresql-${version}-hll"
                 "postgresql-${version}-hypopg"
+                "postgresql-${version}-mysql-fdw"
                 "postgresql-${version}-partman"
                 "postgresql-${version}-plproxy"
                 "postgresql-${version}-pgaudit"

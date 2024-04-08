@@ -75,7 +75,7 @@ COPY --from=dependencies-builder /builddeps/wal-g /usr/local/bin/
 COPY build_scripts/patroni_wale.sh build_scripts/compress_build.sh /builddeps/
 
 # Install patroni and wal-e
-ENV PATRONIVERSION=4.0.4
+ENV PATRONIVERSION=4.0.5
 ENV WALE_VERSION=1.1.1
 
 WORKDIR /
@@ -125,5 +125,20 @@ RUN sh /builddeps/post_build.sh && rm -rf /builddeps/
 
 COPY scripts bootstrap major_upgrade /scripts/
 COPY launch.sh /
+
+COPY --from=docker.io/pgduckdb/pgduckdb:17-v0.3.1 /usr/share/postgresql/17/extension/ /usr/share/postgresql/17/extension/
+COPY --from=docker.io/pgduckdb/pgduckdb:17-v0.3.1 /usr/lib/postgresql/17/lib/libduckdb.so /usr/lib/postgresql/17/lib/pg_duckdb.so /usr/lib/postgresql/17/lib/
+COPY --from=docker.io/pgduckdb/pgduckdb:17-v0.3.1 /usr/lib/postgresql/17/lib/bitcode/pg_duckdb.index.bc /usr/lib/postgresql/17/lib/bitcode/
+COPY --from=docker.io/pgduckdb/pgduckdb:17-v0.3.1 /usr/lib/postgresql/17/lib/bitcode/pg_duckdb/ /usr/lib/postgresql/17/lib/bitcode/pg_duckdb/
+
+COPY --from=docker.io/pgduckdb/pgduckdb:16-v0.3.1 /usr/share/postgresql/16/extension/ /usr/share/postgresql/16/extension/
+COPY --from=docker.io/pgduckdb/pgduckdb:16-v0.3.1 /usr/lib/postgresql/16/lib/libduckdb.so /usr/lib/postgresql/16/lib/pg_duckdb.so /usr/lib/postgresql/16/lib/
+COPY --from=docker.io/pgduckdb/pgduckdb:16-v0.3.1 /usr/lib/postgresql/16/lib/bitcode/pg_duckdb.index.bc /usr/lib/postgresql/16/lib/bitcode/
+COPY --from=docker.io/pgduckdb/pgduckdb:16-v0.3.1 /usr/lib/postgresql/16/lib/bitcode/pg_duckdb/ /usr/lib/postgresql/16/lib/bitcode/pg_duckdb/
+
+COPY --from=docker.io/pgduckdb/pgduckdb:15-v0.3.1 /usr/share/postgresql/15/extension/ /usr/share/postgresql/15/extension/
+COPY --from=docker.io/pgduckdb/pgduckdb:15-v0.3.1 /usr/lib/postgresql/15/lib/libduckdb.so /usr/lib/postgresql/15/lib/pg_duckdb.so /usr/lib/postgresql/15/lib/
+COPY --from=docker.io/pgduckdb/pgduckdb:15-v0.3.1 /usr/lib/postgresql/15/lib/bitcode/pg_duckdb.index.bc /usr/lib/postgresql/15/lib/bitcode/
+COPY --from=docker.io/pgduckdb/pgduckdb:15-v0.3.1 /usr/lib/postgresql/15/lib/bitcode/pg_duckdb/ /usr/lib/postgresql/15/lib/bitcode/pg_duckdb/
 
 CMD ["/bin/sh", "/launch.sh", "init"]
