@@ -19,7 +19,7 @@ apt-cache depends patroni \
         | xargs apt-get install -y "${BUILD_PACKAGES[@]}" python3-pystache python3-requests
 
 rm -f /usr/lib/python3.*/EXTERNALLY-MANAGED
-pip3 install setuptools
+pip3 install --no-cache-dir --no-color setuptools
 
 if [ "$DEMO" != "true" ]; then
     EXTRAS=",etcd,consul,zookeeper,aws"
@@ -40,7 +40,7 @@ if [ "$DEMO" != "true" ]; then
 
     find /usr/share/python-babel-localedata/locale-data -type f ! -name 'en_US*.dat' -delete
 
-    pip3 install filechunkio protobuf \
+    pip3 install --no-cache-dir --no-color filechunkio protobuf \
             'git+https://github.com/zalando-pg/wal-e.git#egg=wal-e[aws,google,swift]' \
             'git+https://github.com/zalando/pg_view.git@master#egg=pg-view'
 
@@ -51,7 +51,7 @@ else
     EXTRAS=""
 fi
 
-pip3 install "patroni[kubernetes$EXTRAS]==$PATRONIVERSION"
+pip3 install --no-cache-dir --no-color "patroni[kubernetes$EXTRAS]==$PATRONIVERSION"
 
 for d in /usr/local/lib/python3.13 /usr/lib/python3; do
     cd $d/dist-packages
