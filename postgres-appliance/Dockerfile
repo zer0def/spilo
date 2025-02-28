@@ -21,7 +21,8 @@ FROM $BASE_IMAGE as dependencies-builder
 
 ARG DEMO
 
-ENV WALG_VERSION=v3.0.3
+# not >=v3.0.6: https://github.com/wal-g/wal-g/issues/1960
+ENV WALG_VERSION=v3.0.5
 
 COPY build_scripts/dependencies.sh /builddeps/
 
