@@ -13,7 +13,7 @@ set -ex
 
 apt-get update
 
-BUILD_PACKAGES=(devscripts equivs build-essential fakeroot debhelper git gcc libc6-dev make cmake libevent-dev libbrotli-dev libssl-dev libkrb5-dev ninja-build)
+BUILD_PACKAGES=(devscripts equivs build-essential fakeroot debhelper git gcc libc6-dev make cmake libevent-dev libbrotli-dev libssl-dev libkrb5-dev ninja-build clang)
 if [ "$DEMO" = "true" ]; then
     export DEB_PG_SUPPORTED_VERSIONS="$PGVERSION"
     WITH_PERL=false
@@ -57,6 +57,7 @@ git clone -b "${CITUS}" https://github.com/citusdata/citus.git
 git clone -b "${PG_DUCKDB}" https://github.com/duckdb/pg_duckdb.git --recurse-submodules
 git clone -b "${PG_IVM}" https://github.com/sraoss/pg_ivm.git
 git clone -b "${PARADEDB}" https://github.com/paradedb/paradedb.git
+git clone -b "${VCHORD}" https://github.com/tensorchord/vectorchord.git
 
 apt-get install -y \
     postgresql-common \
@@ -106,7 +107,6 @@ for version in $DEB_PG_SUPPORTED_VERSIONS; do
         if [ "$WITH_PERL" = "true" ]; then
             EXTRAS+=("postgresql-plperl-${version}")
         fi
-
     fi
 
     # Install PostgreSQL binaries, contrib, plproxy and multiple pl's
@@ -198,6 +198,7 @@ for version in $DEB_PG_SUPPORTED_VERSIONS; do
 done
 "${_CARGO}" pgrx init ${PGRX_INIT_ARGS}
 
+(
 cd paradedb/pg_search
 for version in $DEB_PG_SUPPORTED_VERSIONS; do
   "${_CARGO}" pgrx package --features icu --pg-config "/usr/lib/postgresql/${version}/bin/pg_config"
@@ -205,6 +206,19 @@ for version in $DEB_PG_SUPPORTED_VERSIONS; do
   cp "../target/release/pg_search-pg${version}/usr/share/postgresql/${version}/extension/"* "/usr/share/postgresql/${version}/extension/"
 done
 cd ../..
+)
+(
+cd vectorchord
+for version in $DEB_PG_SUPPORTED_VERSIONS; do
+  export PG_CONFIG="/usr/lib/postgresql/${version}/bin/pg_config"
+  #make build
+  PGRX_PG_CONFIG_PATH="${PG_CONFIG}" "${_CARGO}" run -p make -- build -o ./build/raw
+  make install
+  #tree build/raw
+  unset PG_CONFIG
+done
+cd ..
+)
 
 rm -rf "${HOME}/.cargo" "${HOME}/.rustup"
 
