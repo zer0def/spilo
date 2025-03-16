@@ -102,6 +102,9 @@ for version in $DEB_PG_SUPPORTED_VERSIONS; do
             EXTRAS+=("postgresql-plperl-${version}")
         fi
 
+        curl -sSLO "https://github.com/tensorchord/vectorchord/releases/download/0.2.2/postgresql-${version}-vchord_0.2.2-1_amd64.deb"
+        dpkg -i "postgresql-${version}-vchord_0.2.2-1_amd64.deb"
+        rm "postgresql-${version}-vchord_0.2.2-1_amd64.deb"
     fi
 
     if [ "${TIMESCALEDB_APACHE_ONLY}" = "true" ]; then
