@@ -130,15 +130,24 @@ COPY --from=docker.io/pgduckdb/pgduckdb:17-v0.3.1 /usr/share/postgresql/17/exten
 COPY --from=docker.io/pgduckdb/pgduckdb:17-v0.3.1 /usr/lib/postgresql/17/lib/libduckdb.so /usr/lib/postgresql/17/lib/pg_duckdb.so /usr/lib/postgresql/17/lib/
 COPY --from=docker.io/pgduckdb/pgduckdb:17-v0.3.1 /usr/lib/postgresql/17/lib/bitcode/pg_duckdb.index.bc /usr/lib/postgresql/17/lib/bitcode/
 COPY --from=docker.io/pgduckdb/pgduckdb:17-v0.3.1 /usr/lib/postgresql/17/lib/bitcode/pg_duckdb/ /usr/lib/postgresql/17/lib/bitcode/pg_duckdb/
+COPY --from=docker.io/paradedb/paradedb:v0.15.9-pg17 /usr/share/postgresql/17/extension/pg_analytics* /usr/share/postgresql/17/extension/pg_ivm* /usr/share/postgresql/17/extension/pg_parquet* /usr/share/postgresql/17/extension/pg_search* /usr/share/postgresql/17/extension/
+COPY --from=docker.io/paradedb/paradedb:v0.15.9-pg17 /usr/lib/postgresql/17/lib/pg_analytics.so /usr/lib/postgresql/17/lib/pg_ivm.so /usr/lib/postgresql/17/lib/pg_parquet.so /usr/lib/postgresql/17/lib/pg_search.so /usr/lib/postgresql/17/lib/
+RUN patchelf --replace-needed libicuuc.so.76 libicuuc.so.72 /usr/lib/postgresql/17/lib/pg_search.so; patchelf --replace-needed libicui18n.so.76 libicui18n.so.72 /usr/lib/postgresql/17/lib/pg_search.so  # requires libicu86, present in trixie
 
 COPY --from=docker.io/pgduckdb/pgduckdb:16-v0.3.1 /usr/share/postgresql/16/extension/ /usr/share/postgresql/16/extension/
 COPY --from=docker.io/pgduckdb/pgduckdb:16-v0.3.1 /usr/lib/postgresql/16/lib/libduckdb.so /usr/lib/postgresql/16/lib/pg_duckdb.so /usr/lib/postgresql/16/lib/
 COPY --from=docker.io/pgduckdb/pgduckdb:16-v0.3.1 /usr/lib/postgresql/16/lib/bitcode/pg_duckdb.index.bc /usr/lib/postgresql/16/lib/bitcode/
 COPY --from=docker.io/pgduckdb/pgduckdb:16-v0.3.1 /usr/lib/postgresql/16/lib/bitcode/pg_duckdb/ /usr/lib/postgresql/16/lib/bitcode/pg_duckdb/
+COPY --from=docker.io/paradedb/paradedb:v0.15.9-pg16 /usr/share/postgresql/16/extension/pg_analytics* /usr/share/postgresql/16/extension/pg_ivm* /usr/share/postgresql/16/extension/pg_parquet* /usr/share/postgresql/16/extension/pg_search* /usr/share/postgresql/16/extension/
+COPY --from=docker.io/paradedb/paradedb:v0.15.9-pg16 /usr/lib/postgresql/16/lib/pg_analytics.so /usr/lib/postgresql/16/lib/pg_ivm.so /usr/lib/postgresql/16/lib/pg_parquet.so /usr/lib/postgresql/16/lib/pg_search.so /usr/lib/postgresql/16/lib/
+RUN patchelf --replace-needed libicuuc.so.76 libicuuc.so.72 /usr/lib/postgresql/16/lib/pg_search.so; patchelf --replace-needed libicui18n.so.76 libicui18n.so.72 /usr/lib/postgresql/16/lib/pg_search.so  # requires libicu86, present in trixie
 
 COPY --from=docker.io/pgduckdb/pgduckdb:15-v0.3.1 /usr/share/postgresql/15/extension/ /usr/share/postgresql/15/extension/
 COPY --from=docker.io/pgduckdb/pgduckdb:15-v0.3.1 /usr/lib/postgresql/15/lib/libduckdb.so /usr/lib/postgresql/15/lib/pg_duckdb.so /usr/lib/postgresql/15/lib/
 COPY --from=docker.io/pgduckdb/pgduckdb:15-v0.3.1 /usr/lib/postgresql/15/lib/bitcode/pg_duckdb.index.bc /usr/lib/postgresql/15/lib/bitcode/
 COPY --from=docker.io/pgduckdb/pgduckdb:15-v0.3.1 /usr/lib/postgresql/15/lib/bitcode/pg_duckdb/ /usr/lib/postgresql/15/lib/bitcode/pg_duckdb/
+COPY --from=docker.io/paradedb/paradedb:v0.15.9-pg15 /usr/share/postgresql/15/extension/pg_analytics* /usr/share/postgresql/15/extension/pg_ivm* /usr/share/postgresql/15/extension/pg_parquet* /usr/share/postgresql/15/extension/pg_search* /usr/share/postgresql/15/extension/
+COPY --from=docker.io/paradedb/paradedb:v0.15.9-pg15 /usr/lib/postgresql/15/lib/pg_analytics.so /usr/lib/postgresql/15/lib/pg_ivm.so /usr/lib/postgresql/15/lib/pg_parquet.so /usr/lib/postgresql/15/lib/pg_search.so /usr/lib/postgresql/15/lib/
+RUN patchelf --replace-needed libicuuc.so.76 libicuuc.so.72 /usr/lib/postgresql/15/lib/pg_search.so; patchelf --replace-needed libicui18n.so.76 libicui18n.so.72 /usr/lib/postgresql/15/lib/pg_search.so  # requires libicu86, present in trixie
 
 CMD ["/bin/sh", "/launch.sh", "init"]
