@@ -55,6 +55,8 @@ git clone -b "$SET_USER" https://github.com/pgaudit/set_user.git
 git clone https://github.com/timescale/timescaledb.git
 git clone -b "${CITUS}" https://github.com/citusdata/citus.git
 git clone -b "${PG_DUCKDB}" https://github.com/duckdb/pg_duckdb.git --recurse-submodules
+git clone -b "${PG_IVM}" https://github.com/sraoss/pg_ivm.git
+git clone -b "${PARADEDB}" https://github.com/paradedb/paradedb.git
 
 apt-get install -y \
     postgresql-common \
@@ -152,6 +154,13 @@ for version in $DEB_PG_SUPPORTED_VERSIONS; do
       git clean -fd
       cd ..
     )
+    (  # pg_search/paradedb dependency
+      cd pg_ivm
+      make PG_CONFIG=/usr/lib/postgresql/${version}/bin/pg_config -j$(nproc)
+      make DESTDIR=/ install
+      git clean -fd
+      cd ..
+    )
 
     if [ "${TIMESCALEDB_APACHE_ONLY}" != "true" ] && [ "${TIMESCALEDB_TOOLKIT}" = "true" ]; then
         apt-get update
@@ -176,6 +185,28 @@ for version in $DEB_PG_SUPPORTED_VERSIONS; do
         make -C "$n" USE_PGXS=1 clean install-strip
     done
 done
+
+# this is uh… not great
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --default-toolchain "${RUST_VERSION:-stable}" -y
+_CARGO="${HOME}/.cargo/bin/cargo"
+cd paradedb; CRATE=pgrx; PGRX_VERSION="$("${_CARGO}" tree --depth 1 -i "${CRATE}" -p pg_search | awk "/^${CRATE}/{print \$NF}")"; cd ..
+
+"${_CARGO}" install --locked cargo-pgrx --version "${PGRX_VERSION#v}"
+PGRX_INIT_ARGS=""
+for version in $DEB_PG_SUPPORTED_VERSIONS; do
+  PGRX_INIT_ARGS="${PGRX_INIT_ARGS} --pg${version}=/usr/lib/postgresql/${version}/bin/pg_config"
+done
+"${_CARGO}" pgrx init ${PGRX_INIT_ARGS}
+
+cd paradedb/pg_search
+for version in $DEB_PG_SUPPORTED_VERSIONS; do
+  "${_CARGO}" pgrx package --features icu --pg-config "/usr/lib/postgresql/${version}/bin/pg_config"
+  cp "../target/release/pg_search-pg${version}/usr/lib/postgresql/${version}/lib/"* "/usr/lib/postgresql/${version}/lib/"
+  cp "../target/release/pg_search-pg${version}/usr/share/postgresql/${version}/extension/"* "/usr/share/postgresql/${version}/extension/"
+done
+cd ../..
+
+rm -rf "${HOME}/.cargo" "${HOME}/.rustup"
 
 apt-get install -y skytools3-ticker pgbouncer
 
