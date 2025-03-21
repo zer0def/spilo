@@ -60,6 +60,7 @@ apt-get install -y \
     libevent-pthreads-2.1 \
     brotli \
     libbrotli1 \
+    patchelf \
     procps \
     python3.11 \
     python3-psycopg2
