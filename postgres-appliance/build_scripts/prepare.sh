@@ -52,6 +52,12 @@ add-apt-repository ppa:groonga/ppa
 curl -s -o - https://packages.groonga.org/ubuntu/groonga-keyring.gpg | gpg --dearmor > /etc/apt/trusted.gpg.d/packages.groonga.org.gpg
 echo "deb https://packages.groonga.org/ubuntu/ ${DISTRIB_CODENAME} universe" > /etc/apt/sources.list.d/pgroonga.list
 
+# Add Citus repositories
+#curl -sL -o- https://packagecloud.io/citusdata/community/gpgkey | gpg --dearmor > /etc/apt/trusted.gpg.d/repos.citusdata.com.gpg
+#curl -sL -o- https://repos.citusdata.com/community/gpgkey | gpg --dearmor > /etc/apt/trusted.gpg.d/repos.citusdata.com.gpg
+#echo "deb https://packagecloud.io/citusdata/community/ubuntu/ ${DISTRIB_CODENAME} main" > /etc/apt/sources.list.d/citus.list
+#echo "deb https://repos.citusdata.com/community/ubuntu/ ${DISTRIB_CODENAME} main" > /etc/apt/sources.list.d/citus.list
+
 # Clean up
 apt-get purge -y libcap2-bin
 apt-get autoremove -y

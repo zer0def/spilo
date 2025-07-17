@@ -51,6 +51,7 @@ curl -sL "https://github.com/cybertec-postgresql/pg_permissions/archive/$PG_PERM
 curl -sL "https://github.com/zubkov-andrei/pg_profile/archive/$PG_PROFILE.tar.gz" | tar xz
 git clone -b "$SET_USER" https://github.com/pgaudit/set_user.git
 git clone https://github.com/timescale/timescaledb.git
+git clone -b "${CITUS}" https://github.com/citusdata/citus.git
 
 apt-get install -y \
     postgresql-common \
@@ -129,6 +130,13 @@ for version in $DEB_PG_SUPPORTED_VERSIONS; do
             git reset --hard
             git clean -f -d
         done
+    )
+
+    (
+      cd citus
+      mkdir -p "build-${version}" && cd "build-${version}" && CFLAGS=-Werror ../configure PG_CONFIG=/usr/lib/postgresql/${version}/bin/pg_config --with-security-flags && make -j$(nproc) && make DESTDIR=/ install-all && make clean-full && cd ..
+      git clean -fd
+      cd ..
     )
 
     if [ "${TIMESCALEDB_APACHE_ONLY}" != "true" ] && [ "${TIMESCALEDB_TOOLKIT}" = "true" ]; then
