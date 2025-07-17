@@ -1,5 +1,6 @@
 ARG BASE_IMAGE=ubuntu:22.04
 ARG PGVERSION=17
+ARG TIMESCALEDB="2.21.0"
 ARG DEMO=false
 ARG COMPRESS=false
 ARG ADDITIONAL_LOCALES=
@@ -43,6 +44,7 @@ COPY build_scripts/base.sh /builddeps/
 COPY --from=dependencies-builder /builddeps/*.deb /builddeps/
 
 ARG PGVERSION
+ARG TIMESCALEDB
 ARG TIMESCALEDB_APACHE_ONLY=true
 ARG TIMESCALEDB_TOOLKIT=true
 ARG COMPRESS
@@ -90,6 +92,7 @@ FROM builder-${COMPRESS}
 LABEL maintainer="Team ACID @ Zalando <team-acid@zalando.de>"
 
 ARG PGVERSION
+ARG TIMESCALEDB
 ARG DEMO
 ARG COMPRESS
 
@@ -99,6 +102,7 @@ ENV LC_ALL=en_US.utf-8 \
     PATH=$PATH:/usr/lib/postgresql/$PGVERSION/bin \
     PGHOME=/home/postgres \
     RW_DIR=/run \
+    TIMESCALEDB=$TIMESCALEDB \
     DEMO=$DEMO
 
 ENV WALE_ENV_DIR=$RW_DIR/etc/wal-e.d/env \

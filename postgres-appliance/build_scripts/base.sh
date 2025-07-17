@@ -56,6 +56,7 @@ curl -sL "https://github.com/zalando-pg/pg_auth_mon/archive/$PG_AUTH_MON_COMMIT.
 curl -sL "https://github.com/cybertec-postgresql/pg_permissions/archive/$PG_PERMISSIONS_COMMIT.tar.gz" | tar xz
 curl -sL "https://github.com/zubkov-andrei/pg_profile/archive/$PG_PROFILE.tar.gz" | tar xz
 git clone -b "$SET_USER" https://github.com/pgaudit/set_user.git
+git clone https://github.com/timescale/timescaledb.git
 
 apt-get install -y \
     postgresql-common \
@@ -104,12 +105,6 @@ for version in $DEB_PG_SUPPORTED_VERSIONS; do
 
     fi
 
-    if [ "${TIMESCALEDB_APACHE_ONLY}" = "true" ]; then
-        EXTRAS+=("timescaledb-2-oss-postgresql-${version}")
-    else
-        EXTRAS+=("timescaledb-2-postgresql-${version}")
-    fi
-
     # Install PostgreSQL binaries, contrib, plproxy and multiple pl's
     apt-get install --allow-downgrades -y \
         "postgresql-${version}-cron" \
@@ -121,19 +116,24 @@ for version in $DEB_PG_SUPPORTED_VERSIONS; do
         "postgresql-${version}-pg-stat-kcache" \
         "${EXTRAS[@]}"
 
-    # Clean up timescaledb versions except the last 5 minor versions
-    exclude_patterns=()
-    versions=$(find "/usr/lib/postgresql/$version/lib/" -name 'timescaledb-2.*.so' | sed -rn 's/.*timescaledb-([1-9]+\.[0-9]+\.[0-9]+)\.so$/\1/p' | sort -rV)
-    latest_minor_versions=$(echo "$versions" | awk -F. '{print $1"."$2}' | uniq | head -n 5)
-    for minor in $latest_minor_versions; do
-        for full_version in $(echo "$versions" | grep "^$minor"); do
-            exclude_patterns+=(! -name timescaledb-"${full_version}".so)
-            exclude_patterns+=(! -name timescaledb-tsl-"${full_version}".so)
-        done
-    done
-    find "/usr/lib/postgresql/$version/lib/" \( -name 'timescaledb-2.*.so' -o -name 'timescaledb-tsl-2.*.so' \) "${exclude_patterns[@]}" -delete
-
     # Install 3rd party stuff
+
+    # use subshell to avoid having to cd back (SC2103)
+    (
+        cd timescaledb
+        for v in $TIMESCALEDB; do
+            git checkout "$v"
+            sed -i "s/VERSION 3.11/VERSION 3.10/" CMakeLists.txt
+            if BUILD_FORCE_REMOVE=true ./bootstrap -DREGRESS_CHECKS=OFF -DWARNINGS_AS_ERRORS=OFF \
+                    -DTAP_CHECKS=OFF -DPG_CONFIG="/usr/lib/postgresql/$version/bin/pg_config" \
+                    -DAPACHE_ONLY="$TIMESCALEDB_APACHE_ONLY" -DSEND_TELEMETRY_DEFAULT=NO; then
+                make -C build install
+                strip /usr/lib/postgresql/"$version"/lib/timescaledb*.so
+            fi
+            git reset --hard
+            git clean -f -d
+        done
+    )
 
     if [ "${TIMESCALEDB_APACHE_ONLY}" != "true" ] && [ "${TIMESCALEDB_TOOLKIT}" = "true" ]; then
         apt-get update
