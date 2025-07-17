@@ -2,6 +2,7 @@
 
 export DEBIAN_FRONTEND=noninteractive
 
+sed -i 's/65534/998/g' /etc/passwd /etc/group  # nobody
 echo -e 'APT::Install-Recommends "0";\nAPT::Install-Suggests "0";' > /etc/apt/apt.conf.d/01norecommend
 
 apt-get update
@@ -54,4 +55,4 @@ rm -rf /var/lib/apt/lists/* \
             /usr/share/man \
             /usr/share/locale/?? \
             /usr/share/locale/??_??
-find /var/log -type f -exec truncate --size 0 {} \;
+find /var/log -type f -print0 | xargs -0r -- truncate --size 0

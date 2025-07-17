@@ -21,12 +21,12 @@ libs+=(/lib/ld-linux-"$darch".so.* \
 
 (echo /var/run /var/spool "$files" "${libs[@]}" | tr ' ' '\n' && realpath "$files" "${libs[@]}") | sort -u | sed 's/^\///' > /exclude
 
-find /etc/alternatives -xtype l -delete
+find /etc/alternatives -type l -print0 | xargs -0r -- rm -f
 save_dirs=(usr lib var bin sbin etc/ssl etc/init.d etc/alternatives etc/apt)
 XZ_OPT=-e9v tar -X /exclude -cpJf a.tar.xz "${save_dirs[@]}"
 
 rm -fr /usr/local/lib/python*
 
-/bin/busybox sh -c "(find ${save_dirs[*]} -not -type d && cat /exclude /exclude && echo exclude) | sort | uniq -u | xargs /bin/busybox rm"
+/bin/busybox sh -c "(find ${save_dirs[*]} -not -type d && cat /exclude /exclude && echo exclude) | sort | uniq -u | xargs -r -- /bin/busybox rm"
 /bin/busybox --install -s
-/bin/busybox sh -c "find ${save_dirs[*]} -type d -depth -exec rmdir -p {}; 2> /dev/null"
+/bin/busybox sh -c "find ${save_dirs[*]} -type d -depth -print0 | xargs -0r -- rmdir -p; 2>/dev/null"

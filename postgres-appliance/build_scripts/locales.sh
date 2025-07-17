@@ -6,6 +6,7 @@
 
 set -ex
 
+sed -i 's/65534/998/g' /etc/passwd /etc/group  # nobody
 apt-get update
 apt-get -y upgrade
 apt-get install -y locales

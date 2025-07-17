@@ -294,4 +294,4 @@ rm -rf /var/lib/apt/lists/* \
         /usr/lib/postgresql/*/bin/dropuser \
         /usr/lib/postgresql/*/bin/pg_standby \
         /usr/lib/postgresql/*/bin/pltcl_*
-find /var/log -type f -exec truncate --size 0 {} \;
+find /var/log -type f -print0 | xargs -0r -- truncate --size 0
